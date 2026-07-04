@@ -77,11 +77,29 @@ def build_team_form(matches: pd.DataFrame) -> pd.DataFrame:
     return agg
 
 
-def build_feature_table(matches: pd.DataFrame, teams: pd.DataFrame) -> pd.DataFrame:
+def build_team_player_stats(players: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate player-level metrics into team-level features."""
+    
+    return (
+        players.groupby("team")
+        .agg(
+            avg_player_rating=("rating", "mean"),
+            total_player_goals=("goals", "sum"),
+            total_player_assists=("assists", "sum"),
+            total_player_xg=("xg", "sum"),
+            total_player_xa=("xa", "sum"),
+            total_player_key_passes=("key_passes", "sum"),
+        )
+        .reset_index()
+    )
+
+
+def build_feature_table(matches: pd.DataFrame, teams: pd.DataFrame, players: pd.DataFrame) -> pd.DataFrame:
     """Build supervised learning rows from historical matches."""
 
     form = build_team_form(matches)
-    team_features = teams.merge(form, on="team", how="left").fillna(0)
+    player_stats = build_team_player_stats(players)
+    team_features = teams.merge(form, on="team", how="left").merge(player_stats, on="team", how="left").fillna(0)
     rows = []
     for _, row in matches.iterrows():
         home = team_features.loc[team_features["team"] == row["home_team"]].iloc[0]
@@ -114,6 +132,12 @@ def build_match_features(home: pd.Series, away: pd.Series, neutral_venue: bool =
         "recent_form",
         "clean_sheet_rate",
         "conversion_rate",
+        "avg_player_rating",
+        "total_player_goals",
+        "total_player_assists",
+        "total_player_xg",
+        "total_player_xa",
+        "total_player_key_passes",
     ]:
         feature[f"home_{col}"] = float(home.get(col, 0))
         feature[f"away_{col}"] = float(away.get(col, 0))
@@ -124,14 +148,17 @@ def build_match_features(home: pd.Series, away: pd.Series, neutral_venue: bool =
     feature["possession_difference"] = feature["home_possession"] - feature["away_possession"]
     feature["passing_difference"] = feature["home_pass_accuracy"] - feature["away_pass_accuracy"]
     feature["defense_difference"] = feature["away_defense"] - feature["home_defense"]
+    feature["rating_difference"] = feature["home_avg_player_rating"] - feature["away_avg_player_rating"]
+    feature["player_xg_difference"] = feature["home_total_player_xg"] - feature["away_total_player_xg"]
     return feature
 
 
-def build_fixture_features(fixtures: pd.DataFrame, matches: pd.DataFrame, teams: pd.DataFrame) -> pd.DataFrame:
+def build_fixture_features(fixtures: pd.DataFrame, matches: pd.DataFrame, teams: pd.DataFrame, players: pd.DataFrame) -> pd.DataFrame:
     """Build prediction features for scheduled fixtures."""
 
     form = build_team_form(matches)
-    team_features = teams.merge(form, on="team", how="left").fillna(0)
+    player_stats = build_team_player_stats(players)
+    team_features = teams.merge(form, on="team", how="left").merge(player_stats, on="team", how="left").fillna(0)
     rows = []
     for _, fixture in fixtures.iterrows():
         home = team_features.loc[team_features["team"] == fixture["home_team"]].iloc[0]

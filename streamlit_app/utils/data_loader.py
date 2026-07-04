@@ -12,7 +12,7 @@ import streamlit as st
 from config.settings import settings
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=1)
 def load_table(name: str) -> pd.DataFrame:
     """Load a processed table with graceful empty fallback."""
 

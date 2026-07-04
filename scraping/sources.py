@@ -44,22 +44,22 @@ class TeamProfile:
 
 
 TEAMS: tuple[TeamProfile, ...] = (
-    TeamProfile("Argentina", "CONMEBOL", 1, 2148, 1.86, 0.78, 59.2, 86.1, 18),
-    TeamProfile("France", "UEFA", 2, 2130, 1.88, 0.82, 56.8, 85.0, 17),
-    TeamProfile("Spain", "UEFA", 3, 2124, 1.82, 0.74, 64.0, 89.0, 16),
-    TeamProfile("England", "UEFA", 4, 2094, 1.76, 0.86, 57.9, 86.4, 16),
-    TeamProfile("Portugal", "UEFA", 5, 2058, 1.72, 0.88, 56.2, 85.2, 9),
-    TeamProfile("Brazil", "CONMEBOL", 6, 2112, 1.94, 0.84, 58.6, 85.5, 22),
-    TeamProfile("Netherlands", "UEFA", 7, 2022, 1.66, 0.92, 55.4, 84.6, 11),
-    TeamProfile("Belgium", "UEFA", 8, 1968, 1.54, 1.02, 54.5, 84.1, 14),
-    TeamProfile("Germany", "UEFA", 9, 2034, 1.70, 0.96, 60.1, 87.0, 20),
-    TeamProfile("Croatia", "UEFA", 10, 1958, 1.44, 1.04, 55.8, 85.8, 7),
-    TeamProfile("Uruguay", "CONMEBOL", 12, 1988, 1.52, 0.98, 51.6, 81.7, 14),
+    TeamProfile("Argentina", "CONMEBOL", 2, 1914, 1.86, 0.78, 59.2, 86.1, 18),
+    TeamProfile("France", "UEFA", 1, 1916, 1.88, 0.82, 56.8, 85.0, 17),
+    TeamProfile("Spain", "UEFA", 3, 1892, 1.82, 0.74, 64.0, 89.0, 16),
+    TeamProfile("England", "UEFA", 4, 1851, 1.76, 0.86, 57.9, 86.4, 16),
+    TeamProfile("Portugal", "UEFA", 7, 1788, 1.72, 0.88, 56.2, 85.2, 9),
+    TeamProfile("Brazil", "CONMEBOL", 5, 1805, 1.94, 0.84, 58.6, 85.5, 22),
+    TeamProfile("Belgium", "UEFA", 9, 1968, 1.54, 1.02, 54.5, 84.1, 14),
     TeamProfile("Colombia", "CONMEBOL", 13, 1960, 1.46, 1.00, 52.0, 82.0, 7),
     TeamProfile("Mexico", "CONCACAF", 14, 1878, 1.30, 1.14, 53.1, 82.8, 17),
-    TeamProfile("Japan", "AFC", 16, 1884, 1.32, 1.10, 54.2, 83.6, 8),
+    TeamProfile("Switzerland", "UEFA", 19, 1908, 1.34, 1.05, 53.4, 83.8, 13),
     TeamProfile("USA", "CONCACAF", 17, 1892, 1.34, 1.12, 52.8, 81.4, 12),
-    TeamProfile("Morocco", "CAF", 18, 1890, 1.26, 0.96, 48.7, 79.8, 7),
+    TeamProfile("Morocco", "CAF", 6, 1789, 1.26, 0.96, 48.7, 79.8, 7),
+    TeamProfile("Norway", "UEFA", 31, 1848, 1.42, 1.08, 50.8, 81.5, 4),
+    TeamProfile("Canada", "CONCACAF", 30, 1788, 1.18, 1.18, 49.6, 79.4, 3),
+    TeamProfile("Egypt", "CAF", 29, 1766, 1.20, 1.16, 48.8, 78.9, 4),
+    TeamProfile("Paraguay", "CONMEBOL", 41, 1748, 1.08, 1.10, 46.9, 77.6, 9),
 )
 
 
@@ -154,28 +154,27 @@ def generate_seed_matches(seed: int = 42, seasons: int = 6) -> pd.DataFrame:
 def generate_remaining_fixtures() -> pd.DataFrame:
     """Create a seed remaining-fixtures table for the 2026 tournament scenario."""
 
-    pairings: Iterable[tuple[str, str, str]] = (
-        ("Spain", "Portugal", "Round of 16"),
-        ("France", "Morocco", "Round of 16"),
-        ("Argentina", "USA", "Round of 16"),
-        ("Brazil", "Japan", "Round of 16"),
-        ("England", "Mexico", "Round of 16"),
-        ("Germany", "Colombia", "Round of 16"),
-        ("Netherlands", "Uruguay", "Round of 16"),
-        ("Belgium", "Croatia", "Round of 16"),
+    pairings: Iterable[tuple[str, str, str, str]] = (
+        ("Canada", "Morocco", "Round of 16", "2026-07-05"),
+        ("Paraguay", "France", "Round of 16", "2026-07-05"),
+        ("Brazil", "Norway", "Round of 16", "2026-07-06"),
+        ("Mexico", "England", "Round of 16", "2026-07-06"),
+        ("Portugal", "Spain", "Round of 16", "2026-07-07"),
+        ("USA", "Belgium", "Round of 16", "2026-07-07"),
+        ("Argentina", "Egypt", "Round of 16", "2026-07-07"),
+        ("Switzerland", "Colombia", "Round of 16", "2026-07-08"),
     )
-    base = date(2026, 7, 5)
     return pd.DataFrame(
         [
             {
-                "date": (base + timedelta(days=i)).isoformat(),
+                "date": match_date,
                 "home_team": home,
                 "away_team": away,
                 "stage": stage,
                 "status": "SCHEDULED",
                 "neutral_venue": True,
             }
-            for i, (home, away, stage) in enumerate(pairings)
+            for home, away, stage, match_date in pairings
         ]
     )
 
@@ -186,34 +185,121 @@ def team_profiles_frame() -> pd.DataFrame:
     return pd.DataFrame([profile.__dict__ for profile in TEAMS])
 
 
+SQUAD_LISTS = {
+    "Argentina": [
+        "L. Messi", "J. Alvarez", "A. Di Maria", "L. Martinez", "N. Gonzalez", "A. Garnacho",
+        "E. Fernandez", "A. Mac Allister", "R. De Paul", "G. Lo Celso", "L. Paredes", "E. Palacios",
+        "C. Romero", "N. Otamendi", "L. Martinez Quarta", "G. Pezzella", "N. Tagliafico", "M. Acuna", "N. Molina", "G. Montiel",
+        "E. Martinez", "G. Rulli", "F. Armani"
+    ],
+    "France": [
+        "K. Mbappe", "O. Dembele", "A. Griezmann", "M. Thuram", "O. Giroud", "R. Kolo Muani", "B. Barcola", "K. Coman",
+        "A. Rabiot", "N. Kante", "A. Tchouameni", "E. Camavinga", "Y. Fofana", "W. Zaire-Emery",
+        "W. Saliba", "D. Upamecano", "I. Konate", "B. Pavard", "J. Kounde", "T. Hernandez", "F. Mendy",
+        "M. Maignan", "A. Areola", "B. Samba"
+    ],
+    "Spain": ["A. Morata", "L. Yamal", "N. Williams", "Pedri", "Fabian Ruiz", "Rodri", "M. Cucurella", "A. Laporte", "R. Le Normand", "D. Carvajal", "U. Simon"],
+    "England": [
+        "H. Kane", "P. Foden", "B. Saka", "O. Watkins", "I. Toney", "A. Gordon", "E. Eze", "C. Palmer",
+        "J. Bellingham", "D. Rice", "K. Mainoo", "C. Gallagher", "A. Wharton",
+        "J. Stones", "M. Guehi", "L. Dunk", "E. Konsa", "L. Shaw", "K. Trippier", "K. Walker", "T. Alexander-Arnold",
+        "J. Pickford", "A. Ramsdale", "D. Henderson"
+    ],
+    "Portugal": [
+        "C. Ronaldo", "R. Leao", "J. Felix", "G. Ramos", "D. Jota", "P. Neto", "F. Conceicao",
+        "B. Silva", "B. Fernandes", "Vitinha", "J. Palhinha", "R. Neves", "J. Neves", "M. Nunes",
+        "Pepe", "Ruben Dias", "A. Silva", "G. Inacio", "J. Cancelo", "N. Mendes", "N. Semedo", "D. Dalot",
+        "D. Costa", "R. Patricio", "J. Sa"
+    ],
+    "Brazil": [
+        "Vinicius Jr", "Rodrygo", "Raphinha", "Endrick", "Martinelli", "Savinho", "Evanilson",
+        "L. Paqueta", "B. Guimaraes", "J. Gomes", "A. Pereira", "D. Luiz", "Ederson",
+        "Marquinhos", "Eder Militao", "Beraldo", "Bremer", "Danilo", "Yan Couto", "Arana", "Wendell",
+        "Alisson", "Ederson", "Bento"
+    ],
+    "Belgium": ["R. Lukaku", "J. Doku", "L. Trossard", "K. De Bruyne", "Y. Tielemans", "A. Onana", "A. Theate", "J. Vertonghen", "W. Faes", "T. Castagne", "K. Casteels"],
+    "Colombia": ["J. Cordoba", "L. Diaz", "J. Rodriguez", "J. Arias", "J. Lerma", "R. Rios", "J. Mojica", "J. Lucumi", "D. Sanchez", "D. Munoz", "C. Vargas"],
+    "Mexico": ["S. Gimenez", "H. Lozano", "U. Antuna", "O. Pineda", "L. Chavez", "E. Alvarez", "J. Gallardo", "J. Vasquez", "C. Montes", "J. Sanchez", "G. Ochoa"],
+    "Switzerland": ["B. Embolo", "D. Ndoye", "X. Shaqiri", "G. Xhaka", "R. Freuler", "M. Aebischer", "R. Rodriguez", "M. Akanji", "F. Schar", "S. Widmer", "Y. Sommer"],
+    "USA": ["F. Balogun", "C. Pulisic", "T. Weah", "W. McKennie", "Y. Musah", "T. Adams", "A. Robinson", "T. Ream", "C. Richards", "S. Dest", "M. Turner"],
+    "Morocco": ["Y. En-Nesyri", "S. Boufal", "H. Ziyech", "S. Amallah", "A. Ounahi", "S. Amrabat", "N. Mazraoui", "R. Saiss", "N. Aguerd", "A. Hakimi", "Y. Bounou"],
+    "Norway": ["E. Haaland", "A. Sorloth", "O. Bobb", "M. Odegaard", "S. Berge", "P. Berg", "B. Meling", "L. Ostigard", "K. Ajer", "J. Ryerson", "O. Nyland"],
+    "Canada": ["J. David", "C. Larin", "T. Buchanan", "I. Kone", "S. Eustaquio", "A. Davies", "L. Millar", "D. Cornelius", "M. Bombito", "A. Johnston", "M. Crepeau"],
+    "Egypt": ["M. Mohamed", "M. Salah", "Trezeguet", "E. Ashour", "M. Elneny", "M. Attia", "M. Hamdi", "M. Abdelmonem", "R. Rabia", "M. Hany", "M. El Shenawy"],
+    "Paraguay": ["A. Sanabria", "J. Enciso", "M. Almiron", "R. Sosa", "M. Villasanti", "A. Cubas", "M. Espinoza", "O. Alderete", "G. Gomez", "I. Ramirez", "C. Coronel"],
+}
+
+PLAYER_STATS_OVERRIDES = {
+    "L. Messi": {"goals": 20, "assists": 8, "xg": 15.3, "xa": 9.1, "rating": 9.3},
+    "K. Mbappe": {"goals": 18, "assists": 4, "xg": 13.2, "xa": 4.0, "rating": 9.1},
+    "C. Ronaldo": {"goals": 8, "assists": 3, "xg": 11.5, "xa": 2.3, "rating": 8.7},
+    "H. Kane": {"goals": 13, "assists": 4, "xg": 11.3, "xa": 3.0, "rating": 8.6},
+    "A. Griezmann": {"goals": 6, "assists": 7, "xg": 5.3, "xa": 7.4, "rating": 8.8},
+    "B. Saka": {"goals": 5, "assists": 4, "xg": 3.8, "xa": 3.6, "rating": 8.4},
+    "B. Fernandes": {"goals": 4, "assists": 8, "xg": 3.3, "xa": 6.5, "rating": 8.8},
+    "J. Bellingham": {"goals": 4, "assists": 3, "xg": 3.4, "xa": 2.6, "rating": 8.6},
+    "Vinicius Jr": {"goals": 4, "assists": 6, "xg": 4.7, "xa": 4.6, "rating": 8.7},
+    "Rodrygo": {"goals": 3, "assists": 3, "xg": 3.3, "xa": 2.6, "rating": 8.3},
+    "Raphinha": {"goals": 2, "assists": 2, "xg": 2.4, "xa": 2.3, "rating": 8.1},
+    "L. Martinez": {"goals": 4, "assists": 1, "xg": 5.6, "xa": 0.9, "rating": 8.0},
+    "E. Martinez": {"goals": 0, "assists": 0, "xg": 0.0, "xa": 0.0, "rating": 8.6, "tackles": 0},
+    "M. Maignan": {"goals": 0, "assists": 0, "xg": 0.0, "xa": 0.0, "rating": 8.2, "tackles": 0},
+    "Alisson": {"goals": 0, "assists": 0, "xg": 0.0, "xa": 0.0, "rating": 8.1, "tackles": 0},
+}
+
 def generate_player_seed(seed: int = 42) -> pd.DataFrame:
-    """Generate player-level analytics data for dashboard pages."""
+    """Generate player-level analytics data for dashboard pages using realistic 2026 rosters."""
 
     rng = np.random.default_rng(seed)
     rows = []
-    roles = ("Forward", "Midfielder", "Defender", "Goalkeeper")
+    
     for profile in TEAMS:
-        for idx in range(1, 12):
-            role = roles[min(idx // 4, 3)]
-            attacking_boost = 1.3 if role == "Forward" else 0.75 if role == "Midfielder" else 0.25
+        squad = SQUAD_LISTS.get(profile.team, [f"{profile.team} Player {i+1}" for i in range(11)])
+        squad_size = len(squad)
+        for idx, player_name in enumerate(squad):
+            # Proportional roles for larger squads
+            if idx < squad_size * 0.25: role = "Forward"
+            elif idx < squad_size * 0.60: role = "Midfielder"
+            elif idx < squad_size * 0.90: role = "Defender"
+            else: role = "Goalkeeper"
+            
+            attacking_boost = 1.3 if role == "Forward" else 0.75 if role == "Midfielder" else 0.25 if role == "Defender" else 0.05
+            
+            # Base generated stats
+            goals = int(max(0, rng.poisson(profile.attack * attacking_boost)))
+            assists = int(max(0, rng.poisson(attacking_boost)))
+            xg = round(max(0, rng.normal(profile.attack * attacking_boost, 0.35)), 2)
+            xa = round(max(0, rng.normal(attacking_boost, 0.25)), 2)
+            rating = round(np.clip(rng.normal(7.05 + profile.attack / 8, 0.38), 5.8, 8.9), 2)
+            tackles = int(rng.poisson(5.0 if role in {"Defender", "Midfielder"} else 1.2))
+            
+            # Apply overrides if available
+            overrides = PLAYER_STATS_OVERRIDES.get(player_name, {})
+            if "goals" in overrides: goals = overrides["goals"]
+            if "assists" in overrides: assists = overrides["assists"]
+            if "xg" in overrides: xg = overrides["xg"]
+            if "xa" in overrides: xa = overrides["xa"]
+            if "rating" in overrides: rating = overrides["rating"]
+            if "tackles" in overrides: tackles = overrides["tackles"]
+
             rows.append(
                 {
-                    "player": f"{profile.team} Player {idx}",
+                    "player": player_name,
                     "team": profile.team,
                     "position": role,
                     "minutes": int(rng.integers(180, 620)),
-                    "goals": int(max(0, rng.poisson(profile.attack * attacking_boost))),
-                    "assists": int(max(0, rng.poisson(attacking_boost))),
-                    "xg": round(max(0, rng.normal(profile.attack * attacking_boost, 0.35)), 2),
-                    "xa": round(max(0, rng.normal(attacking_boost, 0.25)), 2),
+                    "goals": goals,
+                    "assists": assists,
+                    "xg": xg,
+                    "xa": xa,
                     "touches": int(rng.integers(90, 460)),
                     "passes": int(rng.integers(55, 390)),
                     "pass_accuracy": round(np.clip(rng.normal(profile.pass_accuracy, 4), 62, 95), 1),
                     "key_passes": int(rng.poisson(2.5 * attacking_boost)),
                     "progressive_passes": int(rng.poisson(4.0 if role != "Goalkeeper" else 0.4)),
-                    "tackles": int(rng.poisson(5.0 if role in {"Defender", "Midfielder"} else 1.2)),
+                    "tackles": tackles,
                     "interceptions": int(rng.poisson(4.0 if role in {"Defender", "Midfielder"} else 0.8)),
-                    "rating": round(np.clip(rng.normal(7.05 + profile.attack / 8, 0.38), 5.8, 8.9), 2),
+                    "rating": rating,
                 }
             )
     return pd.DataFrame(rows)

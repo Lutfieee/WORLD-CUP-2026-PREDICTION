@@ -36,6 +36,9 @@ def inject_css(theme: str = "dark") -> None:
             background: {"rgba(4,10,16,.92)" if dark else "rgba(255,255,255,.86)"};
             border-right: 1px solid rgba(255,255,255,.10);
         }}
+        [data-testid="stSidebar"] * {{
+            color: {text} !important;
+        }}
         .metric-card {{
             background: {panel};
             border: 1px solid {"rgba(255,255,255,.12)" if dark else "rgba(16,24,40,.10)"};
@@ -46,13 +49,13 @@ def inject_css(theme: str = "dark") -> None:
             min-height: 116px;
         }}
         .metric-label {{
-            color: {muted};
+            color: {muted} !important;
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: .08em;
         }}
         .metric-value {{
-            color: {text};
+            color: {text} !important;
             font-size: 30px;
             line-height: 1.1;
             font-weight: 780;
@@ -62,16 +65,13 @@ def inject_css(theme: str = "dark") -> None:
             font-size: 22px;
             font-weight: 760;
             margin: 4px 0 12px 0;
+            color: {text} !important;
         }}
         div[data-testid="stDataFrame"] {{
             border: 1px solid {"rgba(255,255,255,.10)" if dark else "rgba(16,24,40,.12)"};
             border-radius: 8px;
             overflow: hidden;
             background: {table_bg};
-            color: {table_text};
-        }}
-        div[data-testid="stDataFrame"] * {{
-            color: {table_text};
         }}
         .stButton>button {{
             border-radius: 8px;

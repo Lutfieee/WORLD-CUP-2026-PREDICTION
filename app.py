@@ -23,10 +23,9 @@ def ensure_data() -> None:
         subprocess.run([sys.executable, "run_pipeline.py"], check=True)
 
 
-def main() -> None:
+def dashboard() -> None:
     """Render the executive dashboard."""
 
-    apply_page_config()
     theme = st.sidebar.radio("Theme", ["Dark", "Light", "Auto"], index=0, horizontal=True)
     inject_css(theme)
     template = plotly_template(theme)
@@ -39,7 +38,11 @@ def main() -> None:
     live_teams = fetch_live_teams()
     summary = live_summary(live_games)
     source_label = "Live World Cup feed" if summary["available"] else "Local ML pipeline"
-    total_goals = summary["total_goals"] if summary["available"] else int(matches["home_goals"].sum() + matches["away_goals"].sum())
+    if summary["available"]:
+        total_goals = summary["total_goals"]
+    else:
+        actual_matches = matches[matches["stage"] != "Historical"]
+        total_goals = int(actual_matches["home_goals"].sum() + actual_matches["away_goals"].sum()) if not actual_matches.empty else 0
     remaining_matches = summary["remaining_matches"] if summary["available"] else len(predictions)
     last_update = summary["last_update"] if summary["available"] else pd.Timestamp.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 
@@ -91,5 +94,35 @@ def main() -> None:
     st.plotly_chart(fig, use_container_width=True)
 
 
-if __name__ == "__main__":
-    main()
+# ── Navigation ──────────────────────────────────────────────────────────────────
+pages = st.navigation(
+    {
+        "Dashboard": [
+            st.Page(dashboard, title="Home", icon="🏠", default=True),
+        ],
+        "Match Analysis": [
+            st.Page("pages/1_Match_Predictor.py", title="Match Predictor", icon="🎯"),
+            st.Page("pages/2_Match_Preview.py", title="Match Preview", icon="📊"),
+            st.Page("pages/3_Shot_Map.py", title="Shot Map", icon="🗺️"),
+            st.Page("pages/4_xG_Analysis.py", title="xG Analysis", icon="⚽"),
+        ],
+        "Player & Team": [
+            st.Page("pages/5_Player_Analytics.py", title="Player Analytics", icon="👤"),
+            st.Page("pages/6_Player_Comparison.py", title="Player Comparison", icon="🔄"),
+            st.Page("pages/7_Team_Comparison.py", title="Team Comparison", icon="🏟️"),
+        ],
+        "Tournament": [
+            st.Page("pages/8_Tournament_Analytics.py", title="Tournament Analytics", icon="📈"),
+            st.Page("pages/9_Tournament_Simulation.py", title="Tournament Simulation", icon="🎲"),
+            st.Page("pages/12_Tournament_Bracket.py", title="Tournament Bracket", icon="🏆"),
+        ],
+        "Settings": [
+            st.Page("pages/10_Explainable_AI.py", title="Explainable AI", icon="🧠"),
+            st.Page("pages/11_Settings.py", title="Settings", icon="⚙️"),
+        ],
+    }
+)
+
+st.set_page_config(page_title="World Cup 2026 Predictor", page_icon="🏆", layout="wide")
+pages.run()
+

@@ -63,7 +63,7 @@ def _optional_classifiers(random_state: int) -> dict[str, Any]:
     try:
         from lightgbm import LGBMClassifier
 
-        models["lightgbm"] = LGBMClassifier(n_estimators=250, learning_rate=0.05, random_state=random_state)
+        models["lightgbm"] = LGBMClassifier(n_estimators=250, learning_rate=0.05, random_state=random_state, verbose=-1)
     except Exception as exc:  # pragma: no cover - optional dependency
         LOGGER.info("LightGBM classifier unavailable: %s", exc)
     try:
