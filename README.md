@@ -1,4 +1,4 @@
-# AI-Powered FIFA World Cup 2026 Remaining Match Predictor
+# FIFA World Cup 2026 Remaining Match Predictor
 
 Professional football analytics portfolio project for match prediction, score prediction, tournament simulation, and interactive Streamlit reporting.
 

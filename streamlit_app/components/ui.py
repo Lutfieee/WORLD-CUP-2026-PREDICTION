@@ -9,7 +9,7 @@ import streamlit as st
 def apply_page_config() -> None:
     """Configure the Streamlit page."""
 
-    st.set_page_config(page_title="World Cup 2026 AI Predictor", page_icon="WC", layout="wide")
+    st.set_page_config(page_title="World Cup 2026 Predictor", page_icon="WC", layout="wide")
 
 
 def inject_css(theme: str = "dark") -> None:

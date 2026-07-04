@@ -43,7 +43,7 @@ def main() -> None:
     remaining_matches = summary["remaining_matches"] if summary["available"] else len(predictions)
     last_update = summary["last_update"] if summary["available"] else pd.Timestamp.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 
-    styled_header("AI-Powered FIFA World Cup 2026 Predictor", "Professional football analytics dashboard for match, score, and tournament forecasting.")
+    styled_header("FIFA World Cup 2026 Predictor by lutfie", "Professional football analytics dashboard for match, score, and tournament forecasting.")
     st.caption(f"Data source: {source_label}. FIFA ranking baseline: official 11 June 2026 release; next official update is 20 July 2026.")
     c1, c2, c3, c4, c5 = st.columns(5)
     with c1:
